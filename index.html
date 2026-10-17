@@ -435,11 +435,6 @@ input[type=file]{display:none;}
         </div>
       </div>
 
-      <div class="campo">
-        <label for="campo-cantidadEquipos">Cantidad de equipos</label>
-        <input type="number" id="campo-cantidadEquipos" min="1" step="1" inputmode="numeric" value="1">
-      </div>
-
       <div class="fila-3">
         <div class="campo">
           <label for="campo-voltaje">Voltaje (V)</label>
@@ -519,7 +514,7 @@ input[type=file]{display:none;}
         <label>Registro fotográfico <span style="font-weight:500;color:var(--gris-600);">(máx. 5 fotos)</span></label>
         <div class="rejilla-fotos" id="rejilla-general"></div>
         <div class="contador-fotos" id="contador-fotos-general">0 / 5 fotos</div>
-        <div class="ayuda">Cada foto abre la cámara directamente y se guarda sola en el dispositivo, en la carpeta de este reporte.</div>
+        <div class="ayuda">Cada foto se toma con la cámara o se elige de tus archivos, desde el mismo celular, tablet o computador donde estés llenando el reporte, y se guarda sola en la carpeta de este reporte.</div>
       </div>
 
       <div class="campo">
@@ -542,8 +537,8 @@ input[type=file]{display:none;}
 <div class="aviso" id="aviso"></div>
 
 <!-- entradas de archivo ocultas (compartidas) -->
-<input type="file" id="input-foto-general" accept="image/*" capture="environment">
-<input type="file" id="input-foto-novedad" accept="image/*" capture="environment">
+<input type="file" id="input-foto-general" accept="image/*">
+<input type="file" id="input-foto-novedad" accept="image/*">
 
 <!-- ======================= PLANTILLA PARA GENERAR PDF (fuera de pantalla) ======================= -->
 <div id="plantilla-wrap">
@@ -592,7 +587,6 @@ input[type=file]{display:none;}
       <div class="hr-sec-titulo">② Datos técnicos del servicio</div>
       <div class="hr-grid">
         <div class="hr-campo"><div class="et">Tipo de equipo</div><div class="val" id="hr-tipoEquipo">—</div></div>
-        <div class="hr-campo"><div class="et">Cantidad de equipos</div><div class="val" id="hr-cantidadEquipos">—</div></div>
         <div class="hr-campo"><div class="et">Voltaje</div><div class="val" id="hr-voltaje">—</div></div>
         <div class="hr-campo"><div class="et">Amperaje inicial / final</div><div class="val" id="hr-amperaje">—</div></div>
         <div class="hr-campo"><div class="et">Refrigerante</div><div class="val" id="hr-refrigerante">—</div></div>
@@ -1419,7 +1413,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
         '<div class="et">Foto servicio ' + (i + 1) + '</div></div>';
     });
     if (borrador.fotosGeneral.length < 5) {
-      html += '<div class="slot-foto" id="slot-agregar-general"><div class="add">' + svgCamara + '<span>Tomar foto</span></div></div>';
+      html += '<div class="slot-foto" id="slot-agregar-general"><div class="add">' + svgCamara + '<span>Agregar foto</span></div></div>';
     }
     cont.innerHTML = html;
     $("contador-fotos-general").textContent = borrador.fotosGeneral.length + " / 5 fotos";
@@ -1502,7 +1496,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $("campo-direccion").value = borrador.direccion;
     $("campo-tipoMantenimiento").value = borrador.tipoMantenimiento;
     poblarSelect($("campo-tipoEquipo"), state.tiposEquipo, borrador.tipoEquipo);
-    $("campo-cantidadEquipos").value = borrador.cantidadEquipos || 1;
     $("campo-voltaje").value = borrador.voltaje;
     $("campo-amperajeInicial").value = borrador.amperajeInicial;
     $("campo-amperajeFinal").value = borrador.amperajeFinal;
@@ -1531,7 +1524,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     borrador.tipoMantenimiento = $("campo-tipoMantenimiento").value;
     var eqSel = $("campo-tipoEquipo").value;
     borrador.tipoEquipo = eqSel === "__nuevo__" ? "" : eqSel;
-    borrador.cantidadEquipos = $("campo-cantidadEquipos").value || 1;
     borrador.voltaje = $("campo-voltaje").value.trim();
     borrador.amperajeInicial = $("campo-amperajeInicial").value.trim();
     borrador.amperajeFinal = $("campo-amperajeFinal").value.trim();
@@ -1563,7 +1555,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       fecha: new Date().toISOString().slice(0, 10),
       tecnico: state.tecnicoPerfil || state.ultimoTecnico || "",
       cliente: "", direccion: "",
-      tipoMantenimiento: "", tipoEquipo: "", cantidadEquipos: 1,
+      tipoMantenimiento: "", tipoEquipo: "",
       voltaje: "", amperajeInicial: "", amperajeFinal: "",
       refrigerante: "", presionInicial: "", presionFinal: "", capacidadBtus: "",
       novedadActiva: false, novedadDescripcion: "", fotosNovedad: [null, null],
@@ -1669,7 +1661,6 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $("hr-tecnico").textContent = d.tecnico || "—";
     $("hr-tipoMantenimiento").textContent = d.tipoMantenimiento || "—";
     $("hr-tipoEquipo").textContent = d.tipoEquipo || "—";
-    $("hr-cantidadEquipos").textContent = d.cantidadEquipos || "—";
     $("hr-voltaje").textContent = d.voltaje ? d.voltaje + " V" : "—";
     $("hr-amperaje").textContent = (d.amperajeInicial || d.amperajeFinal) ? (d.amperajeInicial || "—") + " A  →  " + (d.amperajeFinal || "—") + " A" : "—";
     $("hr-refrigerante").textContent = d.refrigerante || "—";
@@ -1751,7 +1742,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   /* ---------- Base de datos en Excel (SheetJS) ---------- */
   var ENCABEZADOS_EXCEL = [
     "N.° de reporte", "Fecha", "Cliente", "Dirección", "Técnico",
-    "Tipo de mantenimiento", "Tipo de equipo", "Cantidad de equipos",
+    "Tipo de mantenimiento", "Tipo de equipo",
     "Voltaje (V)", "Amperaje inicial (A)", "Amperaje final (A)",
     "Refrigerante", "Presión inicial (PSI)", "Presión final (PSI)", "Capacidad (BTU/h)",
     "¿Novedad?", "Descripción de la novedad",
@@ -1761,7 +1752,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
   function filaExcel(r) {
     return [
       r.consecutivo || "", formatearFechaLarga(r.fecha) || r.fecha || "", r.cliente || "", r.direccion || "", r.tecnico || "",
-      r.tipoMantenimiento || "", r.tipoEquipo || "", Number(r.cantidadEquipos) || "",
+      r.tipoMantenimiento || "", r.tipoEquipo || "",
       r.voltaje || "", r.amperajeInicial || "", r.amperajeFinal || "",
       r.refrigerante || "", r.presionInicial || "", r.presionFinal || "", r.capacidadBtus || "",
       r.novedadActiva ? "Sí" : "No", r.novedadActiva ? (r.novedadDescripcion || "") : "",
