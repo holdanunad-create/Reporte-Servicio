@@ -239,6 +239,15 @@ input[type=file]{display:none;}
 .hoja-modal .fila-btn{display:flex;gap:10px;}
 .hoja-modal .fila-btn .btn{flex:1;}
 
+.opciones-foto{display:flex;flex-direction:column;gap:10px;margin-bottom:6px;}
+.btn-opcion-foto{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  padding:14px 14px;border-radius:12px;border:1.5px solid var(--gris-200);background:#fcfdff;
+  color:var(--gris-950);font-size:14.5px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.btn-opcion-foto svg{color:var(--azul);flex:none;}
+.btn-opcion-foto:active{background:var(--azul-claro);border-color:var(--azul);}
+
 /* ---------- Plantilla de reporte (para PDF) ---------- */
 #plantilla-wrap{position:absolute;left:0;top:0;width:794px;opacity:.001;pointer-events:none;z-index:-1;}
 .hoja-reporte{
@@ -666,6 +675,27 @@ input[type=file]{display:none;}
     <div class="fila-btn">
       <button class="btn btn-ghost" id="btn-cancelar-tecnico">Cancelar</button>
       <button class="btn btn-primario" id="btn-guardar-tecnico">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= MODAL ELEGIR ORIGEN DE LA FOTO ======================= -->
+<div class="velo oculto" id="velo-elegir-foto">
+  <div class="hoja-modal">
+    <h3>Agregar foto</h3>
+    <p>¿Cómo quieres agregarla?</p>
+    <div class="opciones-foto">
+      <button class="btn-opcion-foto" id="btn-elegir-camara" type="button">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.4"/></svg>
+        <span>Tomar foto con la cámara</span>
+      </button>
+      <button class="btn-opcion-foto" id="btn-elegir-galeria" type="button">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15.5l-5.5-5.5L5 20"/></svg>
+        <span>Elegir desde este equipo</span>
+      </button>
+    </div>
+    <div class="fila-btn" style="margin-top:4px;">
+      <button class="btn btn-ghost" id="btn-cancelar-elegir-foto">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1425,7 +1455,7 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       });
     });
     var slotAdd = $("slot-agregar-general");
-    if (slotAdd) slotAdd.addEventListener("click", function () { $("input-foto-general").click(); });
+    if (slotAdd) slotAdd.addEventListener("click", function () { abrirElegirFoto("general"); });
   }
   function renderFotosNovedad() {
     var cont = $("rejilla-novedad");
@@ -1451,9 +1481,32 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     Array.prototype.forEach.call(cont.querySelectorAll('[data-accion="agregar-novedad"]'), function (el) {
       el.addEventListener("click", function () {
         slotNovedadActivo = +el.dataset.i;
-        $("input-foto-novedad").click();
+        abrirElegirFoto("novedad");
       });
     });
+  }
+
+  /* ---------- Elegir origen de la foto: cámara o archivos del equipo ----------
+     Un mismo <input type=file> sirve para las dos cosas: se le agrega o se le
+     quita el atributo "capture" justo antes de abrirlo, según lo que haya
+     elegido la persona en la hoja de opciones. */
+  var destinoFotoPendiente = null; // "general" | "novedad"
+  function abrirElegirFoto(destino) {
+    destinoFotoPendiente = destino;
+    $("velo-elegir-foto").classList.remove("oculto");
+  }
+  function cerrarElegirFoto() {
+    $("velo-elegir-foto").classList.add("oculto");
+    destinoFotoPendiente = null;
+  }
+  function abrirSelectorConOrigen(conCamara) {
+    if (!destinoFotoPendiente) return;
+    var idInput = destinoFotoPendiente === "novedad" ? "input-foto-novedad" : "input-foto-general";
+    var input = $(idInput);
+    if (conCamara) input.setAttribute("capture", "environment");
+    else input.removeAttribute("capture");
+    cerrarElegirFoto();
+    input.click();
   }
   // El cliente puede escribirse recién en el formulario, antes de guardar el
   // reporte por primera vez. Para que las fotos ya caigan en la carpeta
@@ -1830,6 +1883,11 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     $("btn-guardar-tecnico").addEventListener("click", guardarTecnicoPerfil);
     $("campo-tecnico-perfil").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); guardarTecnicoPerfil(); } });
     $("velo-tecnico").addEventListener("click", function (e) { if (e.target.id === "velo-tecnico") $("velo-tecnico").classList.add("oculto"); });
+
+    $("btn-elegir-camara").addEventListener("click", function () { abrirSelectorConOrigen(true); });
+    $("btn-elegir-galeria").addEventListener("click", function () { abrirSelectorConOrigen(false); });
+    $("btn-cancelar-elegir-foto").addEventListener("click", cerrarElegirFoto);
+    $("velo-elegir-foto").addEventListener("click", function (e) { if (e.target.id === "velo-elegir-foto") cerrarElegirFoto(); });
 
     $("chk-novedad").addEventListener("change", function (e) {
       $("panel-novedad").classList.toggle("oculto", !e.target.checked);
